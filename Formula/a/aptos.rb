@@ -37,6 +37,9 @@ class Aptos < Formula
     ENV["OPENSSL_NO_VENDOR"] = "1"
     ENV["OPENSSL_DIR"] = Formula["openssl@3"].opt_prefix
 
+    # Make sure we get helpful information in the case of a build failure.
+    ENV["RUST_BACKTRACE"] = "1"
+
     # FIXME: Figure out why cargo doesn't respect .cargo/config.toml's rustflags
     ENV["RUSTFLAGS"] = "--cfg tokio_unstable -C force-frame-pointers=yes -C force-unwind-tables=yes"
     system "cargo", "install", *std_cargo_args(path: "crates/aptos"), "--profile=cli"
