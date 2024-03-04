@@ -32,13 +32,26 @@ class Aptos < Formula
     depends_on "systemd"
   end
 
+  # Get the version of revela we should install. TODO update this to an in-repo path.
+  revela_tag, revela_sha256 = File.read("/tmp/version.txt").split("\n")
+
+  resource "revela" do
+    url "https://github.com/verichains/revela/archive/refs/tags/#{revela_tag}.tar.gz"
+    sha256 revela_sha256
+  end
+
   def install
     # FIXME: Figure out why cargo doesn't respect .cargo/config.toml's rustflags
     ENV["RUSTFLAGS"] = "--cfg tokio_unstable -C force-frame-pointers=yes -C force-unwind-tables=yes"
+
+    # Install revela first, we need it for some subcommands in the CLI.
+    resource("revela").stage do
+      system "cargo", "install", *std_cargo_args(path: "third_party/move/tools/revela"), "--profile=cli"
+    end
+
+    # Install the aptos CLI.
     system "cargo", "install", *std_cargo_args(path: "crates/aptos"), "--profile=cli"
   end
-
-  # todo
 
   test do
     assert_match(/output.pub/i, shell_output("#{bin}/aptos key generate --output-file output"))
