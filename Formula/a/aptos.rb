@@ -38,6 +38,8 @@ class Aptos < Formula
     system "cargo", "install", *std_cargo_args(path: "crates/aptos"), "--profile=cli"
   end
 
+  # todo
+
   test do
     assert_match(/output.pub/i, shell_output("#{bin}/aptos key generate --output-file output"))
   end
